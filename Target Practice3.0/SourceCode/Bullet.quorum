@@ -1,0 +1,98 @@
+use Libraries.Game.Graphics.Drawable
+use Libraries.Game.Graphics.Color
+use Libraries.Sound.Audio
+use Libraries.Interface.Item
+use Libraries.Interface.Events.CollisionEvent2D
+use Libraries.Interface.Events.CollisionListener2D
+
+
+class Bullet is Sprite, CollisionListener2D
+    Audio explosion
+    Audio laugh
+    number speed = 600     
+    Drawable fire
+    Main scorecount = undefined
+
+    action SetUpBullet (Main main, integer id)
+       SetName("Bullet " + id)
+       scorecount = main
+       LoadFilledCircle(4)
+       explosion:Load("Explosion 01.wav")
+       laugh:Load("Laugh_01.ogg")
+       fire:Load("flame.png" )
+       fire:SetSize(95,45)
+    end
+
+    action Update(number seconds)
+        
+        SetPosition(GetX(), GetY() + 400*seconds)
+    end
+
+
+    action BeginCollision(CollisionEvent2D hitevent)
+        output "hello from " + GetName()
+        //output("begin collision")
+        Item2D itemA = hitevent:GetItemA()
+        Item2D itemB = hitevent:GetItemB()
+        
+        if itemA is Bullet and itemB is Bullet
+            return now
+        end
+
+        if (itemA is Plane1 and itemB is Plane2) or (itemA is Plane2 and itemB is Plane1)
+            return now
+        end
+        
+        Item2D plane
+        
+        if (itemA is Bullet and itemB is Plane1) or (itemA is Plane1 and itemB is Bullet)
+        
+               if itemA is Bullet
+                    plane = itemB
+                else
+                    plane = itemA
+                end
+            hitplane = false
+            scorecount:UpdateScore(hitplane)
+            explosion:Play()
+            plane:Add(fire)
+        elseif (itemA is Bullet and itemB is Plane2) or (itemA is Plane2 and itemB is Bullet)
+        
+               if itemA is Bullet
+                    plane = itemB
+                else
+                    plane = itemA
+                end
+            hitplane = true
+            scorecount:UpdateScore(hitplane)
+            explosion:Play()
+            plane:Add(fire)
+            
+      
+        end
+    end
+
+    action FinishCollision(CollisionEvent2D hitevent)
+        Item2D itemA = hitevent:GetItemA()
+        Item2D itemB = hitevent:GetItemB()
+
+        if itemA is Bullet and itemB is Bullet
+            return now
+        end
+
+        if (itemA is Plane1 and itemB is Plane2) or (itemA is Plane2 and itemB is Plane1)
+            return now
+        end
+        
+        Item2D plane
+        
+        if itemA is Bullet
+            plane = itemB
+        else
+            plane = itemA
+        end
+
+       //fire:SetPosition(plane:GetX(), plane:GetY())
+       plane:Remove(fire)
+    end
+end 

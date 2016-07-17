@@ -1,0 +1,187 @@
+use Libraries.Game.Game
+use Libraries.Game.InputMonitor
+use Libraries.Sound.Audio
+use Libraries.Interface.Events.KeyboardEvent
+use Libraries.Interface.Events.KeyboardListener
+use Libraries.Game.Graphics.Drawable
+use Libraries.System.File
+use Libraries.Compute.Random
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Item
+use Libraries.Interface.Events.CollisionEvent2D
+use Libraries.Interface.Events.CollisionListener2D
+use Libraries.Game.Graphics.Label
+use Libraries.Game.Graphics.FramesPerSecondLabel
+
+/*
+    This is a default class for creating a game in Quorum. Note that the Main 
+    action begins by calling StartGame(), which loads a window a game can 
+    be displayed in. The action CreateGame is where the game should load any 
+    assets, like images to be displayed, frames of animation, or sounds to be
+    played. 
+*/
+class Main is Game, KeyboardListener
+    InputMonitor volumeadjust
+    KeyboardEvent keys
+    KeyboardListener fire
+    Audio song
+    Audio planesound
+    Audio explosion
+    Audio laugh
+    Drawable desert
+    Plane1 plane
+    Plane2 plane2
+    Tank tank
+    Random randomspeed
+    InputMonitor tankmove
+    Bullet bullet
+    InputMonitor shoot
+    Drawable scorebox
+    integer score = 0
+    Label label
+
+    integer bulletCount = 0
+
+
+    
+
+    /*
+        This action, Main, starts our computer program. In Quorum, programs always
+        begin from Main.
+    */
+    action Main
+        SetScreenSize(1600, 900)
+        SetFullScreen(true)
+        StartGame()
+    end
+
+    /*
+        This action sets up the default values for a game. For example, we might
+        use the Libraries.Game.Graphics.Drawable class to load up an image or 
+        a shape. Or, we might add a Libraries.Interface.Button for making something clickable
+        or a Libraries.Interface.TextBox for gathering user input in a game.
+    */
+    action CreateGame
+        AddKeyboardListener(me)
+        
+        File file1
+        file1:SetPath("Background.png")
+        desert:Load(file1)
+        desert:SetSize(1600,1000)
+        Add (desert)
+        File file4
+        file4:SetPath("Scoreboard.png")
+        scorebox:Load(file4)
+        scorebox:SetSize(200,100)
+        scorebox:SetPosition(100, 350)
+        Add(scorebox)
+        label:SetText("" + score)
+        label:SetPosition(150, 50)
+        scorebox:Add(label)
+        Add(tank)
+        tank:SetPosition(760,100)
+        
+        Add(plane)
+        Add(plane2)
+        plane:SetSpeed(300)
+        plane:SetPosition(-200,800)
+        plane2:SetSpeed(350)
+        plane2:SetPosition(-100,800)
+        plane:MoveTo(1600,800)
+        
+        plane2:MoveTo(1620,800)
+        File file3
+        file3:SetPath("Danger.ogg")
+        song:Load(file3)
+        song:SetVolume(0.2)
+        song:Play()
+        plane:SetUpPlane()
+        plane2:SetUpPlane2()
+        tank:SetUpTank()
+        planesound:Load("Airplane_01.ogg")
+        planesound:SetVolume(1)
+        planesound:Play()
+        plane:SetCollidable(true)
+        plane2:SetCollidable(true)
+//        AddCollisionListener(plane2)
+
+        FramesPerSecondLabel fpslabel
+        Add(fpslabel)
+        
+    end
+
+    /*
+        The update action is called on every "frame" of animation in a game. This
+        action should be used to do operations on items. So, for example, we 
+        might use this action to change frames of animation, to rotate items, 
+        or to make creatures jump.
+    */
+    action Update(number seconds)
+        if volumeadjust:IsKeyPressed(keys:ESCAPE)
+            Exit()
+        end
+
+        if volumeadjust:IsKeyPressed(keys:UP)
+            number volume = song:GetVolume()
+            volume = volume + 0.01
+            song:SetVolume(volume)
+        elseif volumeadjust:IsKeyPressed(keys:DOWN)
+            number volume = song:GetVolume()
+            volume = volume - 0.01            
+            song:SetVolume(volume)
+        end
+
+        if tankmove:IsKeyPressed(keys:LEFT)
+            number movex = tank:GetX()- 10
+            tank:SetPosition(movex, 100)
+        elseif tankmove:IsKeyPressed(keys:RIGHT)
+            number movex = tank:GetX()+ 10
+            tank:SetPosition(movex, 100)
+        end
+
+
+
+        
+        if plane:GetX() >= 1600 and plane:GetY() >= 800
+            plane:SetPosition(-200,800)
+            integer planespeed1 = randomspeed:RandomIntegerBetween(300, 500)
+            plane:SetSpeed(planespeed1)
+            plane:MoveTo(1600, 800)
+        end
+        if plane2:GetX() >= 1620 and plane2:GetY() >= 800
+            integer planespeed2 = randomspeed:RandomIntegerBetween(300, 500)
+            plane:SetSpeed(planespeed2)
+            plane2:SetPosition(-100,800)
+            plane2:MoveTo(1620, 800)
+        end
+        
+    end
+
+   action PressedKey(KeyboardEvent shooting)
+        if shooting:keyCode = shooting:SPACE
+            Bullet bullet
+            bullet:SetUpBullet(me, bulletCount)
+            number newX = tank:GetX() + 150
+            bullet:SetPosition(newX, 200)
+            bullet:SetCollidable(true)
+            AddCollisionListener(bullet)
+            Add(bullet)
+
+            bulletCount = bulletCount + 1
+            
+        end
+   end
+
+    action UpdateScore (boolean hitplane)
+        if hitplane
+            score = score + 1
+        else 
+            score = score - 1
+        end
+         label:SetText("" + score)
+
+         output score
+
+         output GetCurrentLayer2D():GetCollisionManager():GetCollisionCount()
+    end
+end

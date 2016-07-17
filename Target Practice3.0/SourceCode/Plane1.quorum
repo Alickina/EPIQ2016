@@ -1,0 +1,11 @@
+use Libraries.Game.Graphics.Drawable
+use Libraries.Containers.Queue
+use Move
+
+
+class Plane1 is Sprite
+    action SetUpPlane
+        Load("airplane 1.png")
+        SetSize(100, 50)
+    end  
+end

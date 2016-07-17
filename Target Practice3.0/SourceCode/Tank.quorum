@@ -1,0 +1,10 @@
+use Libraries.Game.Graphics.Drawable
+use Libraries.Containers.Queue
+use Move
+
+class Tank is Sprite
+    action SetUpTank
+        Load("Tank.png")
+        SetSize(200,100)
+    end
+end

@@ -30,8 +30,6 @@ class Bullet is Sprite, CollisionListener2D
 
 
     action BeginCollision(CollisionEvent2D hitevent)
-        output "hello from " + GetName()
-        //output("begin collision")
         Item2D itemA = hitevent:GetItemA()
         Item2D itemB = hitevent:GetItemB()
         
@@ -49,25 +47,38 @@ class Bullet is Sprite, CollisionListener2D
         
                if itemA is Bullet
                     plane = itemB
+                    if cast(Bullet, itemA) not= me
+                        return now
+                    end
                 else
                     plane = itemA
+                    if cast(Bullet, itemB) not= me
+                        return now
+                    end
                 end
             hitplane = false
             scorecount:UpdateScore(hitplane)
             explosion:Play()
             plane:Add(fire)
+            
         elseif (itemA is Bullet and itemB is Plane2) or (itemA is Plane2 and itemB is Bullet)
         
                if itemA is Bullet
                     plane = itemB
+                    if cast(Bullet, itemA) not= me
+                        return now
+                    end
                 else
                     plane = itemA
+                    if cast(Bullet, itemB) not= me
+                        return now
+                    end
                 end
             hitplane = true
             scorecount:UpdateScore(hitplane)
             explosion:Play()
             plane:Add(fire)
-            
+           
       
         end
     end
@@ -75,8 +86,8 @@ class Bullet is Sprite, CollisionListener2D
     action FinishCollision(CollisionEvent2D hitevent)
         Item2D itemA = hitevent:GetItemA()
         Item2D itemB = hitevent:GetItemB()
-
-        if itemA is Bullet and itemB is Bullet
+        
+        if itemA is Bullet and itemB is Bullet 
             return now
         end
 
@@ -94,5 +105,6 @@ class Bullet is Sprite, CollisionListener2D
 
        //fire:SetPosition(plane:GetX(), plane:GetY())
        plane:Remove(fire)
+       plane:SetPosition(-200,800)
     end
 end 

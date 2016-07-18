@@ -47,7 +47,7 @@ class Main is Game, KeyboardListener
     integer frames = 0
     boolean ending = false
     number timer = 0
-
+    boolean endtime = false
     /*
         This action, Main, starts our computer program. In Quorum, programs always
         begin from Main.
@@ -78,16 +78,16 @@ class Main is Game, KeyboardListener
         
         plane2:MoveTo(1620,800)
         File file3
-        file3:SetPath("Danger.ogg")
+        file3:SetPath("Twist.ogg")
         song:Load(file3)
-        song:SetVolume(0.1)
-        song:Play()
+        song:SetVolume(0.05)
+        //song:Play()
         plane:SetUpPlane()
         plane2:SetUpPlane2()
         tank:SetUpTank()
         planesound:Load("Airplane_01.ogg")
         planesound:SetVolume(0.6)
-        planesound:Play()
+        //planesound:Play()
         plane:SetCollidable(true)
         plane2:SetCollidable(true)
 //        AddCollisionListener(plane2)
@@ -107,7 +107,7 @@ class Main is Game, KeyboardListener
         scorebox:SetPosition(100, 350)
         Add(scorebox)
         label:SetText("" + score)
-        label:SetPosition(150, 50)
+        label:SetPosition(100, 50)
         scorebox:Add(label)
         Add(tank)
         tank:SetPosition(760,100)
@@ -129,20 +129,26 @@ class Main is Game, KeyboardListener
             frames = frames + 1
             if frames = 2
                 talk:SetVolume(1)
-                talk:Say("Welcome to Target Practice!Your objective is to target enemy planes and shoot them down while avoiding non military targets.
+                talk:Say("Welcome to Target Practice. Your objective is to target enemy planes and shoot them down while avoiding non military targets.
                     Use the left and rigth arrows to move your tank across the screen, while the space bar will allow you to fire your weapons.
-                    You can use the up and down arrow keys to adjust the song volume and the escape key if you would like to exit the game early.", true)
+                    You can use the up and down arrow keys to adjust the song volume and if you would like to exit the game early press the escape key.", true)
                 Remove(instructions)
+                planesound:Play()
+                song:EnableLooping()
+                song:Play()
             end
         end
         
         if ending = true
-            repeat until timer > 10
+            repeat until timer > 1000
                 timer = timer + seconds
             end
-            Exit()
-        end
-            
+            endtime = true
+            if volumeadjust:IsKeyPressed(keys:ESCAPE)
+                Exit()
+            end
+        else
+        
         if volumeadjust:IsKeyPressed(keys:ESCAPE)
             Exit()
         end
@@ -180,7 +186,7 @@ class Main is Game, KeyboardListener
             plane2:SetPosition(-100,800)
             plane2:MoveTo(1620, 800)
         end
-        
+      end  
     end
 
    action PressedKey(KeyboardEvent shooting)
@@ -201,7 +207,7 @@ class Main is Game, KeyboardListener
     action UpdateScore (boolean hitplane)
         if hitplane
             score = score + 1
-            if score = 2
+            if score = 5
                 File file5
                 file5:SetPath("You Win.png")
                 youwin:SetPosition(400,300)

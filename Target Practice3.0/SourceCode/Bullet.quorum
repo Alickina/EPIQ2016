@@ -12,12 +12,15 @@ class Bullet is Sprite, CollisionListener2D
     number speed = 600     
     Drawable fire
     Main scorecount = undefined
+    
+    
 
     action SetUpBullet (Main main, integer id)
        SetName("Bullet " + id)
        scorecount = main
        LoadFilledCircle(4)
        explosion:Load("Explosion 01.wav")
+       explosion:SetVolume(0.6)
        laugh:Load("Laugh_01.ogg")
        fire:Load("flame.png" )
        fire:SetSize(95,45)

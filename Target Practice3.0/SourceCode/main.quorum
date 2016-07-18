@@ -12,6 +12,7 @@ use Libraries.Interface.Events.CollisionEvent2D
 use Libraries.Interface.Events.CollisionListener2D
 use Libraries.Game.Graphics.Label
 use Libraries.Game.Graphics.FramesPerSecondLabel
+use Libraries.Sound.Speech
 
 /*
     This is a default class for creating a game in Quorum. Note that the Main 
@@ -39,11 +40,13 @@ class Main is Game, KeyboardListener
     Drawable scorebox
     integer score = 0
     Label label
-
+    Drawable youwin
+    Drawable instructions
     integer bulletCount = 0
-
-
-    
+    Speech talk
+    integer frames = 0
+    boolean ending = false
+    number timer = 0
 
     /*
         This action, Main, starts our computer program. In Quorum, programs always
@@ -63,7 +66,35 @@ class Main is Game, KeyboardListener
     */
     action CreateGame
         AddKeyboardListener(me)
+        begin()
+
+        Add(plane)
+        Add(plane2)
+        plane:SetSpeed(300)
+        plane:SetPosition(-200,800)
+        plane2:SetSpeed(350)
+        plane2:SetPosition(-100,800)
+        plane:MoveTo(1600,800)
         
+        plane2:MoveTo(1620,800)
+        File file3
+        file3:SetPath("Danger.ogg")
+        song:Load(file3)
+        song:SetVolume(0.1)
+        song:Play()
+        plane:SetUpPlane()
+        plane2:SetUpPlane2()
+        tank:SetUpTank()
+        planesound:Load("Airplane_01.ogg")
+        planesound:SetVolume(0.6)
+        planesound:Play()
+        plane:SetCollidable(true)
+        plane2:SetCollidable(true)
+//        AddCollisionListener(plane2)
+
+    end
+
+    action begin()
         File file1
         file1:SetPath("Background.png")
         desert:Load(file1)
@@ -80,36 +111,13 @@ class Main is Game, KeyboardListener
         scorebox:Add(label)
         Add(tank)
         tank:SetPosition(760,100)
-        
-        Add(plane)
-        Add(plane2)
-        plane:SetSpeed(300)
-        plane:SetPosition(-200,800)
-        plane2:SetSpeed(350)
-        plane2:SetPosition(-100,800)
-        plane:MoveTo(1600,800)
-        
-        plane2:MoveTo(1620,800)
-        File file3
-        file3:SetPath("Danger.ogg")
-        song:Load(file3)
-        song:SetVolume(0.2)
-        song:Play()
-        plane:SetUpPlane()
-        plane2:SetUpPlane2()
-        tank:SetUpTank()
-        planesound:Load("Airplane_01.ogg")
-        planesound:SetVolume(1)
-        planesound:Play()
-        plane:SetCollidable(true)
-        plane2:SetCollidable(true)
-//        AddCollisionListener(plane2)
-
-        FramesPerSecondLabel fpslabel
-        Add(fpslabel)
-        
+        File file6
+        file6:SetPath("instructions.png")
+        instructions:Load(file6)
+        instructions:SetSize(800,600)
+        instructions:SetPosition(400,250)
+        Add(instructions)
     end
-
     /*
         The update action is called on every "frame" of animation in a game. This
         action should be used to do operations on items. So, for example, we 
@@ -117,6 +125,24 @@ class Main is Game, KeyboardListener
         or to make creatures jump.
     */
     action Update(number seconds)
+        if frames <2 
+            frames = frames + 1
+            if frames = 2
+                talk:SetVolume(1)
+                talk:Say("Welcome to Target Practice!Your objective is to target enemy planes and shoot them down while avoiding non military targets.
+                    Use the left and rigth arrows to move your tank across the screen, while the space bar will allow you to fire your weapons.
+                    You can use the up and down arrow keys to adjust the song volume and the escape key if you would like to exit the game early.", true)
+                Remove(instructions)
+            end
+        end
+        
+        if ending = true
+            repeat until timer > 10
+                timer = timer + seconds
+            end
+            Exit()
+        end
+            
         if volumeadjust:IsKeyPressed(keys:ESCAPE)
             Exit()
         end
@@ -175,6 +201,15 @@ class Main is Game, KeyboardListener
     action UpdateScore (boolean hitplane)
         if hitplane
             score = score + 1
+            if score = 2
+                File file5
+                file5:SetPath("You Win.png")
+                youwin:SetPosition(400,300)
+                youwin:Load(file5)
+                Add(youwin)
+                talk:Say("Congratulations, you win!",true)
+                ending = true
+            end
         else 
             score = score - 1
         end
@@ -182,6 +217,6 @@ class Main is Game, KeyboardListener
 
          output score
 
-         //output GetCurrentLayer2D():GetCollisionManager():GetCollisionCount()
+         
     end
 end
